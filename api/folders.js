@@ -23,12 +23,11 @@ router.get('/', auth, async (req, res) => {
     if (parentFolderId !== undefined) {
       query.parentFolderId = parentFolderId === 'null' ? null : parentFolderId;
     }
-    const folders = await Folder.find(query);
-    
-    // OPTIMIZATION: Fetch all user folders and images once to calculate sizes in memory
-    // This prevents the N+1 database query problem which slows down serverless environments
-    const allUserFolders = await Folder.find({ userId: req.user._id }).lean();
-    const allUserImages = await Image.find({ userId: req.user._id }, 'size folderId').lean();
+    const [folders, allUserFolders, allUserImages] = await Promise.all([
+      Folder.find(query),
+      Folder.find({ userId: req.user._id }).lean(),
+      Image.find({ userId: req.user._id }, 'size folderId').lean()
+    ]);
 
     const calculateSizeMem = (fId) => {
       let size = 0;
