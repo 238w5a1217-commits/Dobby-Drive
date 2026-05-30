@@ -20,15 +20,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div style={{
-      width: '280px',
-      backgroundColor: 'var(--bg-panel)',
-      borderRight: '1px solid var(--border)',
-      display: 'flex',
-      flexDirection: 'column',
-      padding: '1.5rem',
-      height: '100%'
-    }}>
+    <div className="sidebar">
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem' }}>
         <HardDrive size={32} color="var(--primary)" />
         <h1 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Dobby Drive</h1>
