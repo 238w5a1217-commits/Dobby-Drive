@@ -6,20 +6,12 @@ const fs = require('fs');
 const auth = require('../middleware/auth');
 const Image = require('../models/Image');
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const uploadDir = path.join(__dirname, '..', 'uploads');
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    cb(null, uploadDir);
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname);
-  }
-});
+const storage = multer.memoryStorage();
 
-const upload = multer({ storage: storage });
+const upload = multer({ 
+  storage: storage,
+  limits: { fileSize: 4 * 1024 * 1024 } // 4MB limit for Vercel serverless functions
+});
 
 router.post('/upload', auth, upload.single('image'), async (req, res) => {
   try {
@@ -29,9 +21,11 @@ router.post('/upload', auth, upload.single('image'), async (req, res) => {
       return res.status(400).json({ error: 'No image uploaded' });
     }
 
+    const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+
     const image = new Image({
       name: req.file.originalname,
-      imageUrl: `/uploads/${req.file.filename}`,
+      imageUrl: base64Image,
       size: req.file.size,
       folderId: folderId && folderId !== 'null' ? folderId : null,
       userId: req.user._id
@@ -40,6 +34,7 @@ router.post('/upload', auth, upload.single('image'), async (req, res) => {
     await image.save();
     res.status(201).json(image);
   } catch (error) {
+    console.error('Upload error:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });
