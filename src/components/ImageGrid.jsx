@@ -70,7 +70,7 @@ const ImageGrid = ({ currentFolderId }) => {
             {images.map(image => (
               <div key={image._id} className="glass" style={{ borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
                 <div style={{ height: '180px', backgroundColor: 'var(--bg-darker)' }}>
-                  <img src={image.imageUrl} alt={image.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img src={`/api/images/serve/${image._id}`} alt={image.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
                 </div>
                 <div style={{ padding: '1rem', display: 'flex', alignItems: 'center' }}>
                   <FileImage size={20} style={{ color: 'var(--text-muted)', marginRight: '0.75rem' }} />
