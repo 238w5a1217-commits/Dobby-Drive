@@ -2,10 +2,10 @@ import React, { useContext, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { FolderContext } from '../context/FolderContext';
 import FolderTree from './FolderTree';
-import { LogOut, HardDrive } from 'lucide-react';
+import { LogOut, HardDrive, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onClose }) => {
   const { logout, user } = useContext(AuthContext);
   const { fetchFolderTree } = useContext(FolderContext);
   const navigate = useNavigate();
@@ -20,10 +20,16 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="sidebar">
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem' }}>
-        <HardDrive size={32} color="var(--primary)" />
-        <h1 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Dobby Drive</h1>
+    <div className={`sidebar ${isOpen ? 'open' : ''}`}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <HardDrive size={32} color="var(--primary)" />
+          <h1 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Dobby Drive</h1>
+        </div>
+        {/* Close Button for Mobile Only */}
+        <button className="mobile-header" style={{ display: window.innerWidth <= 768 ? 'block' : 'none', background: 'none', border: 'none', padding: 0 }} onClick={onClose}>
+          <X size={24} color="var(--text-muted)" />
+        </button>
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto' }}>
