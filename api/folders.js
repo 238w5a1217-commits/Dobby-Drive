@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const Folder = require('../models/Folder');
+const Image = require('../models/Image');
 const calculateFolderSize = require('../utils/folderSize');
 
 router.post('/', auth, async (req, res) => {
