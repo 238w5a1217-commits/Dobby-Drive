@@ -24,9 +24,25 @@ router.get('/', auth, async (req, res) => {
     }
     const folders = await Folder.find(query);
     
-    const foldersWithSize = await Promise.all(folders.map(async (folder) => {
-      const size = await calculateFolderSize(folder._id);
-      return { ...folder.toObject(), size };
+    // OPTIMIZATION: Fetch all user folders and images once to calculate sizes in memory
+    // This prevents the N+1 database query problem which slows down serverless environments
+    const allUserFolders = await Folder.find({ userId: req.user._id }).lean();
+    const allUserImages = await Image.find({ userId: req.user._id }, 'size folderId').lean();
+
+    const calculateSizeMem = (fId) => {
+      let size = 0;
+      for (const img of allUserImages) {
+        if (String(img.folderId) === String(fId)) size += img.size || 0;
+      }
+      for (const f of allUserFolders) {
+        if (String(f.parentFolderId) === String(fId)) size += calculateSizeMem(f._id);
+      }
+      return size;
+    };
+
+    const foldersWithSize = folders.map(folder => ({
+      ...folder.toObject(),
+      size: calculateSizeMem(folder._id)
     }));
     
     res.json(foldersWithSize);
